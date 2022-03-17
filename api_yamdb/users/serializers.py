@@ -4,30 +4,42 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
 
 
 class UserPatchSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-        read_only_fields = ('role',)
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+        read_only_fields = ("role",)
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ('username', 'email',)
+        fields = (
+            "username",
+            "email",
+        )
 
     def validate_username(self, value):
-        if value == 'me':
+        if value == "me":
             raise serializers.ValidationError('Username can not be "me"')
         return value
 

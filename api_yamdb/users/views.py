@@ -9,12 +9,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .permissions import AdminOnly
-from .serializers import (SignUpSerializer, TokenCreateSerializer,
-                          UserPatchSerializer, UserSerializer)
+from .serializers import (
+    SignUpSerializer,
+    TokenCreateSerializer,
+    UserPatchSerializer,
+    UserSerializer,
+)
 
 
-class CreateViewSet(mixins.CreateModelMixin,
-                    viewsets.GenericViewSet):
+class CreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     pass
 
 
@@ -28,26 +31,29 @@ class UserViewSet(viewsets.ModelViewSet):
     - возвращает данные пользователя
     - изменяет объект пользователя.
     """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    lookup_field = 'username'
+    lookup_field = "username"
     permission_classes = (AdminOnly,)
 
     @action(
         detail=False,
-        url_path='me',
-        methods=['GET', 'PATCH'],
-        permission_classes=(IsAuthenticated,)
+        url_path="me",
+        methods=["GET", "PATCH"],
+        permission_classes=(IsAuthenticated,),
     )
     def me(self, request):
-        if request.method == 'PATCH':
-            serializer = UserPatchSerializer(request.user, data=request.data,
-                                             partial=True)
+        if request.method == "PATCH":
+            serializer = UserPatchSerializer(
+                request.user, data=request.data, partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
@@ -57,18 +63,19 @@ class SignUpViewSet(CreateViewSet):
     При запросе анонима:
     - создаёт объект пользователя, отправляет код на почту.
     """
+
     queryset = User.objects.all()
     serializer_class = SignUpSerializer
     permission_classes = (AllowAny,)
 
     def perform_create(self, serializer):
         serializer.save()
-        email = self.request.data.get('email')
-        user = User.objects.get(username=self.request.data.get('username'))
+        email = self.request.data.get("email")
+        user = User.objects.get(username=self.request.data.get("username"))
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
-            subject='Get your confirmation code',
-            message=f'Your confirmation code: {confirmation_code}',
+            subject="Get your confirmation code",
+            message=f"Your confirmation code: {confirmation_code}",
             from_email=None,
             recipient_list=[email],
         )
@@ -81,30 +88,33 @@ class SignUpViewSet(CreateViewSet):
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,  # Переопределяю create т.к.
-            headers=headers             # по стандарту возвращается код 201,
-        )                               # а документация требует код 200
+            headers=headers,  # по стандарту возвращается код 201,
+        )  # а документация требует код 200
 
 
-@api_view(http_method_names=['POST'],)
-@permission_classes([AllowAny],)
+@api_view(
+    http_method_names=["POST"],
+)
+@permission_classes(
+    [AllowAny],
+)
 def get_token(request):
     serializer = TokenCreateSerializer(data=request.data)
 
     if serializer.is_valid(raise_exception=True):
         data = serializer.data
-        user = get_object_or_404(User, username=data.get('username'))
-        confirmation_code = data.get('confirmation_code')
+        user = get_object_or_404(User, username=data.get("username"))
+        confirmation_code = data.get("confirmation_code")
         code_valid = default_token_generator.check_token(
-            user,
-            confirmation_code
+            user, confirmation_code
         )
 
         if code_valid:
             refresh = RefreshToken.for_user(
-                User.objects.get(username=data.get('username'))
+                User.objects.get(username=data.get("username"))
             )
             resp = dict()
-            resp['token'] = str(refresh.access_token)
+            resp["token"] = str(refresh.access_token)
 
             return Response(resp, status=status.HTTP_200_OK)
 
