@@ -9,6 +9,7 @@ services:
       - ./.env
   web:
     image: fizik05/yamdb_final
+    restart: always
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
@@ -32,7 +33,7 @@ services:
 
     depends_on:
       - web
-#volumes
+
 volumes:
   static_value:
   media_value:
