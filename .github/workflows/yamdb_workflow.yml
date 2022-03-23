@@ -23,7 +23,7 @@ jobs:
         pytest
 
   build_and_push_to_docker_hub:
-    if: github.repository == 'Fizk05/yamdb_final'
+    if: github.branch == 'main/master'
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     needs: tests
