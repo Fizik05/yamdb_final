@@ -9,12 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .permissions import AdminOnly
-from .serializers import (
-    SignUpSerializer,
-    TokenCreateSerializer,
-    UserPatchSerializer,
-    UserSerializer,
-)
+from .serializers import (SignUpSerializer, TokenCreateSerializer,
+                          UserPatchSerializer, UserSerializer)
 
 
 class CreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
